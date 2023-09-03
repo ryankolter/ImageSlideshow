@@ -70,6 +70,8 @@ open class FullScreenSlideshowViewController: UIViewController {
         }
 
         view.addSubview(slideshow)
+        
+        self.modalPresentationCapturesStatusBarAppearance = true
 
         // close button configuration
         closeButton.setImage(UIImage(named: "ic_cross_white", in: .module, compatibleWith: nil), for: UIControlState())
