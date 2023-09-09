@@ -27,6 +27,13 @@ open class FullScreenSlideshowViewController: UIViewController {
 
     /// Close button frame
     open var closeButtonFrame: CGRect?
+    
+    /// Download button
+    open var downloadButton = UIButton()
+    
+    open var downloadSuccessMessage: String = ""
+    
+    open var showDownloadButton: Bool = true
 
     /// Closure called on page selection
     open var pageSelected: ((_ page: Int) -> Void)?
@@ -77,6 +84,15 @@ open class FullScreenSlideshowViewController: UIViewController {
         closeButton.setImage(UIImage(named: "ic_cross_white", in: .module, compatibleWith: nil), for: UIControlState())
         closeButton.addTarget(self, action: #selector(FullScreenSlideshowViewController.close), for: UIControlEvents.touchUpInside)
         view.addSubview(closeButton)
+        
+        if showDownloadButton {
+            downloadButton.setImage(UIImage(named: "download_white", in: .module, compatibleWith: nil), for: UIControlState())
+            downloadButton.addTarget(self, action: #selector(FullScreenSlideshowViewController.download), for: UIControlEvents.touchUpInside)
+            view.addSubview(downloadButton)
+        }
+        
+        let gesture = UITapGestureRecognizer(target: self, action:  #selector (FullScreenSlideshowViewController.close))
+        view.addGestureRecognizer(gesture)
     }
 
     override open var prefersStatusBarHidden: Bool {
@@ -110,7 +126,10 @@ open class FullScreenSlideshowViewController: UIViewController {
                 safeAreaInsets = UIEdgeInsets.zero
             }
 
-            closeButton.frame = closeButtonFrame ?? CGRect(x: max(10, safeAreaInsets.left), y: max(10, safeAreaInsets.top), width: 40, height: 40)
+            closeButton.frame = closeButtonFrame ?? CGRect(x: max(15, safeAreaInsets.left), y: max(15, safeAreaInsets.top), width: 40, height: 40)
+            if showDownloadButton {
+                downloadButton.frame = CGRect(x: view.bounds.width - max(15, safeAreaInsets.left) - 40, y: max(15, safeAreaInsets.top), width: 40, height: 40)
+            }
         }
 
         slideshow.frame = view.frame
@@ -123,5 +142,41 @@ open class FullScreenSlideshowViewController: UIViewController {
         }
 
         dismiss(animated: true, completion: nil)
+    }
+    
+    func download() {
+        if showDownloadButton, let inputs = inputs, let imageSource: ImageSource = inputs[slideshow.currentPage] as? ImageSource {
+            UIImageWriteToSavedPhotosAlbum(imageSource.image, nil, nil, nil);
+            self.showToast(message: self.downloadSuccessMessage, font: .systemFont(ofSize: 16.0))
+        }
+    }
+    
+    func showToast(message : String, font: UIFont) {
+        let toastLabel = UILabel(frame: CGRect(x: self.view.frame.size.width / 2 - 75, y: self.view.frame.size.height, width: 150, height: 36))
+        toastLabel.backgroundColor = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0)
+        toastLabel.textColor = UIColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)
+        toastLabel.font = font
+        toastLabel.textAlignment = .center;
+        toastLabel.text = message
+        toastLabel.alpha = 1.0
+        toastLabel.layer.cornerRadius = 10;
+        toastLabel.clipsToBounds  =  true
+        self.view.addSubview(toastLabel)
+        
+        var showFrame: CGRect = toastLabel.frame;
+        showFrame.origin.y = self.view.frame.size.height - 130;
+        
+        var hideFrame: CGRect = toastLabel.frame;
+        hideFrame.origin.y = self.view.frame.size.height;
+        
+        UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
+             toastLabel.frame = showFrame
+        }, completion: {(isCompleted) in
+            UIView.animate(withDuration: 0.3, delay: 1.5, options: .curveEaseOut, animations: {
+                toastLabel.frame = hideFrame
+            }, completion: {(isCompleted) in
+                toastLabel.removeFromSuperview()
+            })
+        })
     }
 }

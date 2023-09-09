@@ -33,6 +33,8 @@ let package = Package(
             resources: [
                 .copy("Assets/ic_cross_white@2x.png"),
                 .copy("Assets/ic_cross_white@3x.png"),
+                .copy("Assets/download_white@2x.png"),
+                .copy("Assets/download_white@3x.png"),
             ])
     ],
     swiftLanguageVersions: [.v4, .v4_2, .v5]
