@@ -146,10 +146,18 @@ open class FullScreenSlideshowViewController: UIViewController {
     
     func download() {
         if showDownloadButton, let inputs = inputs, let imageSource: ImageSource = inputs[slideshow.currentPage] as? ImageSource {
-            UIImageWriteToSavedPhotosAlbum(imageSource.image, nil, nil, nil);
+            UIImageWriteToSavedPhotosAlbum(imageSource.image, self, #selector(imageSaved(image:didFinishSavingWithError:contextInfo:)), nil)
+        }
+    }
+    
+    func imageSaved(image: UIImage!, didFinishSavingWithError error: NSError?, contextInfo: AnyObject?) {
+        if (error != nil) {
+            print("error")
+        } else {
             self.showToast(message: self.downloadSuccessMessage, font: .systemFont(ofSize: 16.0))
         }
     }
+    
     
     func showToast(message : String, font: UIFont) {
         let toastLabel = UILabel(frame: CGRect(x: self.view.frame.size.width / 2 - 75, y: self.view.frame.size.height, width: 150, height: 36))
